@@ -24,8 +24,25 @@ export default function Header() {
   const handleSidebarToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     const html = document.documentElement;
-    const currentState = html.getAttribute('data-toggled');
-    html.setAttribute('data-toggled', currentState === 'close' ? 'open' : 'close');
+    const isMobile = window.innerWidth < 992;
+    
+    if (isMobile) {
+      const hasDefaultMenuHandler = typeof (window as { toggleSidemenu?: () => void }).toggleSidemenu === 'function';
+      if (hasDefaultMenuHandler) {
+        return;
+      }
+      const currentState = html.getAttribute('data-toggled');
+      // On mobile: toggle between 'open' (visible) and 'close' (hidden)
+      html.setAttribute('data-toggled', currentState === 'open' ? 'close' : 'open');
+    } else {
+      const isCollapsed = html.getAttribute('data-sidebar') === 'collapsed';
+      // On desktop: toggle data-sidebar for collapsed state
+      if (isCollapsed) {
+        html.removeAttribute('data-sidebar');
+      } else {
+        html.setAttribute('data-sidebar', 'collapsed');
+      }
+    }
   };
 
   return (
