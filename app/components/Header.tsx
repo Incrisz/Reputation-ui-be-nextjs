@@ -1,12 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Header() {
   const { theme, toggleTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
+  const dropdownRef = useRef<HTMLLIElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSidebarToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const html = document.documentElement;
+    const currentState = html.getAttribute('data-toggled');
+    html.setAttribute('data-toggled', currentState === 'close' ? 'open' : 'close');
+  };
 
   return (
     <header className="app-header sticky">
@@ -27,12 +47,7 @@ export default function Header() {
               className="sidemenu-toggle header-link animated-arrow hor-toggle horizontal-navtoggle"
               data-bs-toggle="sidebar"
               href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                const html = document.documentElement;
-                const currentState = html.getAttribute('data-toggled');
-                html.setAttribute('data-toggled', currentState === 'close' ? 'open' : 'close');
-              }}
+              onClick={handleSidebarToggle}
             >
               <span></span>
             </a>
@@ -64,7 +79,7 @@ export default function Header() {
           </li>
 
           {/* Profile Dropdown */}
-          <li className={`header-element dropdown ${profileOpen ? 'show' : ''}`}>
+          <li ref={dropdownRef} className={`header-element dropdown ${profileOpen ? 'show' : ''}`}>
             <a
               href="#"
               className="header-link dropdown-toggle"
@@ -74,7 +89,7 @@ export default function Header() {
                 <img src="/images/faces/12.jpg" alt="profile" className="header-link-icon rounded-circle" width="32" height="32" />
               </div>
             </a>
-            <div className={`main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end ${profileOpen ? 'show' : ''}`}>
+            <div className={`main-header-dropdown dropdown-menu pt-0 overflow-hidden header-profile-dropdown dropdown-menu-end ${profileOpen ? 'show' : ''}`} style={{ position: 'absolute', right: 0, top: '100%' }}>
               <div className="p-3 bg-primary text-white">
                 <div className="d-flex align-items-center justify-content-between">
                   <p className="mb-0 fs-16">Profile</p>

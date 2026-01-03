@@ -15,8 +15,77 @@
   margin-right: 10px;
 }
 
+/* Dropdown fixes */
 .dropdown-menu.show {
   display: block;
+}
+
+/* Profile dropdown positioning fix */
+.header-profile-dropdown {
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  top: 100% !important;
+  min-width: 250px;
+  z-index: 1050;
+  margin-top: 0.5rem;
+}
+
+.header-element.dropdown {
+  position: relative;
+}
+
+/* Sidebar toggle functionality */
+[data-toggled="open"] .app-sidebar {
+  transform: translateX(0) !important;
+  visibility: visible !important;
+}
+
+[data-toggled="close"] .app-sidebar {
+  transform: translateX(-100%);
+  visibility: hidden;
+}
+
+@media (min-width: 992px) {
+  [data-toggled="close"] .app-sidebar {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  
+  [data-toggled="open"] .app-sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+  }
+  
+  [data-toggled="open"] .app-content {
+    margin-inline-start: 0 !important;
+  }
+}
+
+/* Ensure sidebar is visible on larger screens by default */
+@media (min-width: 992px) {
+  .app-sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+  }
+}
+
+/* Mobile sidebar overlay */
+@media (max-width: 991.98px) {
+  [data-toggled="open"]::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+  }
+  
+  [data-toggled="open"] .app-sidebar {
+    z-index: 100;
+  }
 }
 
 /* Auth pages styling */
