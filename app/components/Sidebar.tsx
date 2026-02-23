@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutUser } from '@/lib/auth';
+import { useEffect, useState } from 'react';
+import { getAuthUser, isAdminUser, logoutUser } from '@/lib/auth';
 
 const menuItems = [
   {
@@ -107,6 +108,39 @@ const footerItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
+
+  useEffect(() => {
+    const syncRoleState = () => {
+      setHasAdminAccess(isAdminUser(getAuthUser()));
+    };
+
+    syncRoleState();
+    window.addEventListener('storage', syncRoleState);
+    window.addEventListener('focus', syncRoleState);
+
+    return () => {
+      window.removeEventListener('storage', syncRoleState);
+      window.removeEventListener('focus', syncRoleState);
+    };
+  }, []);
+
+  const dynamicMenuItems = hasAdminAccess
+    ? [
+        ...menuItems.filter((item) => item.href !== '/start-audit' && item.href !== '/audit-history'),
+        {
+          href: '/admin',
+          label: 'Admin Portal',
+          icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="side-menu__icon" viewBox="0 0 256 256" width="20" height="20">
+              <path d="M128,24l88,40v56c0,54-37.4,93.8-88,112-50.6-18.2-88-58-88-112V64Z" opacity="0.2" fill="currentColor"/>
+              <path d="M128,24l88,40v56c0,54-37.4,93.8-88,112-50.6-18.2-88-58-88-112V64Z" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+              <polyline points="96 128 120 152 168 104" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+            </svg>
+          ),
+        },
+      ]
+    : menuItems;
 
   const closeMobileSidebar = () => {
     if (typeof window === 'undefined' || window.innerWidth >= 992) {
@@ -150,7 +184,7 @@ export default function Sidebar() {
       <div className="main-sidebar has-footer" id="sidebar-scroll">
         <nav className="main-menu-container nav nav-pills flex-column sub-open">
           <ul className="main-menu">
-            {menuItems.map((item) => (
+            {dynamicMenuItems.map((item) => (
               <li key={item.href} className="slide">
                 <Link
                   href={item.href}

@@ -2,6 +2,7 @@ export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  role?: 'admin' | 'user' | string | null;
   registration_provider?: string | null;
   avatar_url?: string | null;
   phone?: string | null;
@@ -195,6 +196,10 @@ export function getAuthUser(): AuthUser | null {
 
 export function isAuthenticated(): boolean {
   return getAuthUser() !== null;
+}
+
+export function isAdminUser(user: AuthUser | null): boolean {
+  return user?.role === 'admin';
 }
 
 export async function logoutUser(): Promise<void> {
